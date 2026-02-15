@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deep Reinforcement Learning with Time-Scale Invariant Memory</title>
+  <meta name="description" content="Project page for Deep Reinforcement Learning with Time-Scale Invariant Memory (AAAI 2025).">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+
+  <header class="hero" id="top">
+    <div class="container hero-inner reveal">
+      <p class="venue">AAAI 2025 | Proceedings of the AAAI Conference on Artificial Intelligence</p>
+      <h1><span class="title-line title-line-main">Deep Reinforcement Learning</span><span class="title-line">with Time-Scale Invariant Memory</span></h1>
+      <p class="authors">Md Rysul Kabir, James Mochizuki-Freeman, Zoran Tiganj</p>
+      <p class="affiliation">Department of Computer Science, Luddy School of Informatics, Computing, and Engineering, Indiana University Bloomington</p>
+
+      <div class="link-row" aria-label="Paper links">
+        <a class="link-paper" href="https://ojs.aaai.org/index.php/AAAI/article/view/32124/" target="_blank" rel="noopener">
+          <img class="link-logo link-logo-aaai" src="assets/logos/aaai-symbol-blue.png" alt="" aria-hidden="true">
+          <span>Paper</span>
+        </a>
+        <a class="link-arxiv" href="https://arxiv.org/abs/2412.15292" target="_blank" rel="noopener">
+          <img class="link-logo" src="assets/logos/arxiv-logomark-small-from-cornell.svg" alt="" aria-hidden="true">
+          <span>arXiv</span>
+        </a>
+        <a class="link-code" href="https://github.com/cogneuroai/RL-with-scale-invariant-memory" target="_blank" rel="noopener">
+          <img class="link-logo" src="assets/logos/github-invertocat-black.svg" alt="" aria-hidden="true">
+          <span>Code</span>
+        </a>
+        <a href="mailto:mdrkabir@iu.edu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.7"></rect><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <span>Contact</span>
+        </a>
+      </div>
+
+      <p class="hero-summary">A neuroscience-inspired memory mechanism that allows RL agents to retain robust performance when temporal structure in the environment is rescaled.</p>
+    </div>
+  </header>
+
+  <nav class="quick-nav">
+    <div class="container quick-nav-inner">
+      <div class="nav-links">
+        <a href="#abstract">Abstract</a>
+        <a href="#method">Method</a>
+        <a href="#experiments">Experimental Setup</a>
+        <a href="#results">Results</a>
+        <a href="#conclusion">Conclusion</a>
+        <a href="#citation">Citation</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section id="abstract" class="section">
+      <div class="container reveal">
+        <h2>Abstract</h2>
+        <p class="lead">
+          Temporal credit assignment is difficult for both biological and artificial agents, especially when the same task appears at different time scales.
+          This work integrates a scale-invariant memory model into deep reinforcement learning and demonstrates strong, stable learning across temporally rescaled conditions.
+          The key idea is to build a log-compressed memory of past inputs so that temporal rescaling appears as translation in internal state, reducing the need to retune agents for each scale.
+        </p>
+
+        <div class="cards three-col">
+          <article class="card">
+            <h3>What We Did</h3>
+            <p>Replaced standard recurrent memory with CogRNN, a memory module based on Laplace-domain encoding and approximate inverse reconstruction.</p>
+          </article>
+          <article class="card">
+            <h3>Why It Matters</h3>
+            <p>Animal timing behavior is approximately scale invariant, while typical RL memory models often learn in a scale-dependent way.</p>
+          </article>
+          <article class="card">
+            <h3>What We Found</h3>
+            <p>CogRNN agents maintain high performance and more consistent learning speed across task scales, with temporal activity patterns that align with scale-invariant coding principles.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="method" class="section alt">
+      <div class="container reveal">
+        <h2>Time-Scale Invariant Memory</h2>
+        <p class="method-lead">
+          Let $f(t)$ denote encoded observations over time. CogRNN builds a bank of exponentially decaying traces,
+          equivalent to a real-domain Laplace transform, then applies an analytic inverse approximation to recover
+          a sequence of temporal basis functions $\tilde{f}$ over log-spaced internal time constants.
+        </p>
+
+        <div class="equation-flow">
+          <div class="equation-grid-two">
+            <article class="eq-step">
+              <h3>Continuous-Time Memory Encoding</h3>
+              <p>The first stage accumulates history using exponentially weighted traces over a spectrum of decay rates $s$.</p>
+              <div class="math-block">
+                \[
+                F(s;t)=\int_0^t e^{-s(t-t')} f(t')\,dt'
+                \]
+              </div>
+              <p>Small $s$ keeps long-range context; large $s$ emphasizes recent input.</p>
+            </article>
+
+            <article class="eq-step">
+              <h3>Differential Form</h3>
+              <p>The same transform can be written as a linear differential equation, which is convenient for recurrent implementation.</p>
+              <div class="math-block">
+                \[
+                \frac{dF(s;t)}{dt}=-sF(s;t)+f(t)
+                \]
+              </div>
+              <p>This shows a simple decay-plus-drive process at each temporal scale.</p>
+            </article>
+
+            <article class="eq-step">
+              <h3>Approximate Inverse Transform</h3>
+              <p>The second stage reconstructs a temporally localized code from Laplace-domain traces.</p>
+              <div class="math-block">
+                \[
+                \tilde{f}(\overset{*}{\tau};t)=\mathcal{L}_k^{-1}F(s;t)=\frac{(-1)^k}{k!}s^{k+1}\frac{d^k}{ds^k}F(s;t)
+                \]
+              </div>
+              <p>Using $\overset{*}{\tau}=k/s$, units tile time on a compressed axis and support sequential time-cell-like activity.</p>
+            </article>
+
+            <article class="eq-step">
+              <h3>Discrete-Time Recurrent Update</h3>
+              <p>For neural networks, the memory update is implemented directly as a recurrence.</p>
+              <div class="math-block">
+                \[
+                F_{s,t}=\mathbf{L}\,F_{s,t-1}+f_t
+                \]
+              </div>
+              <p>The diagonal operator $\mathbf{L}$ stores analytically chosen decay rates across memory channels.</p>
+            </article>
+          </div>
+
+          <article class="eq-step eq-step-wide">
+            <h3>Impulse Response of Reconstructed Memory</h3>
+            <p>This expression describes the temporal profile of each reconstructed unit.</p>
+            <div class="math-block">
+              \[
+              \tilde{f}_{\overset{*}{\tau},t}=\frac{1}{t}\frac{k^{k+1}}{k!}\left(\frac{t}{\overset{*}{\tau}}\right)^{k+1}e^{-k\frac{t}{\overset{*}{\tau}}}
+              \]
+              \[
+              \overset{*}{\tau}_i=(1+c)^{i-1}\overset{*}{\tau}_{\min},
+              \qquad
+              \Delta=\log_{1+c}(a)
+              \]
+              \[
+              f(at)\;\Rightarrow\;\tilde{f}_{i}(at)\approx \tilde{f}_{i+\Delta}(t)
+              \]
+            </div>
+            <p>With log-spaced $\overset{*}{\tau}$ values, temporal rescaling in the input produces an approximately constant index shift in memory coordinates; this translation-like behavior is why downstream policies can preserve performance across scales instead of relearning separate dynamics for each temporal stretch factor.</p>
+          </article>
+        </div>
+
+        <figure class="figure-card figure-composite method-abc-figure">
+          <div class="method-triple-grid">
+            <div class="panel-with-label method-panel">
+              <span class="panel-tag">A</span>
+              <img class="zoomable" src="assets/images/fig3a_impulse_response.png" alt="CogRNN response to impulse inputs, showing decays and time-cell-like peaks.">
+            </div>
+            <div class="panel-with-label method-panel">
+              <span class="panel-tag">B</span>
+              <img class="zoomable" src="assets/images/fig3b_log_memory.png" alt="Log-compressed memory for scale=1,2,4 signals.">
+            </div>
+            <div class="panel-with-label method-panel">
+              <span class="panel-tag">C</span>
+              <img class="zoomable" src="assets/images/fig3c_translation.png" alt="Rescaling turns into translation over memory index.">
+            </div>
+          </div>
+          <figcaption>A: Decay traces and reconstructed sequential activation in CogRNN memory. B: Log-compressed memory states for temporally rescaled inputs. C: Re-indexed memory representation where temporal rescaling appears as translation.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="experiments" class="section">
+      <div class="container reveal">
+        <h2>Experimental Setup</h2>
+        <div class="exp-card-grid">
+          <article class="card exp-arch-card">
+            <h3>RL Agent Architecture</h3>
+            <div class="exp-arch-card-inner">
+              <div>
+                <p>The RL agent architecture consists of three components:</p>
+                <ol>
+                  <li><strong>Encoder:</strong> Convolutional layers for feature extraction (3D environments).</li>
+                  <li><strong>Core:</strong> Recurrent memory (CogRNN, LSTM, or RNN).</li>
+                  <li><strong>Agent:</strong> Policy network ($\pi$) and value network ($V$).</li>
+                </ol>
+              </div>
+              <figure class="exp-inline-figure">
+                <img class="zoomable" src="assets/images/fig2_architecture.png" alt="Agent architecture with encoder, recurrent memory, policy and value heads.">
+                <figcaption>Encoder, memory core, and policy/value heads in the RL pipeline.</figcaption>
+              </figure>
+            </div>
+          </article>
+
+          <article class="card exp-task-card">
+            <h3>Tasks</h3>
+            <div class="exp-task-card-inner">
+              <div>
+                <ul>
+                  <li><strong>Interval timing (1D and 3D):</strong> Decides whether an interval is short or long based on sensory input.</li>
+                  <li><strong>Interval discrimination:</strong> Distinguishes between different time intervals based on sensory cues.</li>
+                  <li><strong>Delayed match to sample:</strong> Determines if two stimuli separated by a delay are the same.</li>
+                  <li><strong>Interval reproduction:</strong> Reproduces a time interval after observing it.</li>
+                </ul>
+                <figure class="exp-inline-figure exp-static-figure">
+                  <img class="zoomable" src="assets/images/fig1_environment.png" alt="T-maze interval timing environment snapshots.">
+                  <figcaption>Static snapshots of the interval-timing task: trial start at the red line, post-interval gate opening, and left/right decision endpoints used to classify short vs long intervals.</figcaption>
+                </figure>
+              </div>
+              <figure class="exp-inline-figure exp-gif-figure">
+                <img class="zoomable" src="assets/media/env_sim.gif" alt="Environment rollout showing interval timing setup.">
+                <figcaption>Rollout visualization of the interval-timing environment used in training and evaluation.</figcaption>
+              </figure>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="results" class="section alt">
+      <div class="container reveal">
+        <h2>Results</h2>
+
+        <article class="result-block">
+          <h3>Stable Learning Across Temporal Scales</h3>
+          <p>
+            Across four tasks, CogRNN shows consistently strong performance under rescaling.
+            LSTM learns in several settings but exhibits stronger scale dependence, especially in harder conditions.
+          </p>
+
+          <figure class="figure-card figure-composite">
+            <div class="stable-grid-wrap">
+              <div class="panel-column-labels panel-column-labels-top">
+                <span>Interval Timing 1D</span>
+                <span>Interval Discrimination</span>
+                <span>Delayed match to sample</span>
+                <span>Interval timing 3D</span>
+              </div>
+
+              <div class="model-row model-row-rotated">
+                <p class="model-label-vertical">CogRNN</p>
+                <div class="panel-grid four-col no-caption-grid stable-panels">
+                  <img class="zoomable" src="assets/images/fig4_task_interval_1d_cogrnn.png" alt="CogRNN panel A: interval timing 1D.">
+                  <img class="zoomable" src="assets/images/fig4_task_interval_discrimination_cogrnn.png" alt="CogRNN panel B: interval discrimination.">
+                  <img class="zoomable" src="assets/images/fig4_task_dms_cogrnn.png" alt="CogRNN panel C: delayed match to sample.">
+                  <img class="zoomable" src="assets/images/fig4_task_interval_3d_cogrnn.png" alt="CogRNN panel D: interval timing 3D.">
+                </div>
+              </div>
+
+              <div class="model-row model-row-rotated">
+                <p class="model-label-vertical">LSTM</p>
+                <div class="panel-grid four-col no-caption-grid stable-panels">
+                  <img class="zoomable" src="assets/images/fig4_task_interval_1d_lstm.png" alt="LSTM panel A: interval timing 1D.">
+                  <img class="zoomable" src="assets/images/fig4_task_interval_discrimination_lstm.png" alt="LSTM panel B: interval discrimination.">
+                  <img class="zoomable" src="assets/images/fig4_task_dms_lstm.png" alt="LSTM panel C.">
+                  <img class="zoomable lstm-panel-d-offset" src="assets/images/fig4_task_interval_3d_lstm.png" alt="LSTM panel D.">
+                </div>
+              </div>
+
+              <img class="legend-strip-bottom zoomable" src="assets/images/fig4_scale_legend.png" alt="Legend for scale values used in performance plots.">
+            </div>
+
+            <figcaption>Performance across representative tasks and temporal scales for CogRNN and LSTM models.</figcaption>
+          </figure>
+        </article>
+
+        <article class="result-block">
+          <h3>From Scale Covariance to Approximate Invariance</h3>
+          <p>
+            Memory traces are covariant under temporal rescaling (shift in internal coordinates). Convolution and pooling convert this into approximate invariance,
+            allowing transfer from one scale to others without re-optimizing policy dynamics from scratch.
+          </p>
+
+          <figure class="figure-card figure-composite scale-cov-figure">
+            <div class="panel-grid two-col no-caption-grid">
+              <div class="scale-cov-a-stack">
+                <img class="scale-cov-legend-a zoomable" src="assets/images/fig5a_conv_pool_legend.png" alt="Legend for Figure 5A scale conditions.">
+                <div class="scale-cov-panel-a">
+                  <span class="panel-tag">A</span>
+                  <img class="zoomable scale-cov-main-a" src="assets/images/fig5a_conv_pool.png" alt="Figure 5A: convolution and pooling output across scales.">
+                </div>
+              </div>
+              <div class="panel-with-label">
+                <span class="panel-tag">B</span>
+                <img class="zoomable" src="assets/images/fig5b_invariance_eval.png" alt="Performance comparison between CogRNN and RNN across scales.">
+              </div>
+            </div>
+            <figcaption> A: Convolution and pooling align shifted memory traces and B: support stronger cross-scale performance than a standard RNN baseline.</figcaption>
+          </figure>
+        </article>
+
+        <article class="result-block">
+          <h3>Temporal Neural Dynamics Align with Scale-Invariant Coding</h3>
+          <p>
+            Time-cell-like responses appear in multiple architectures, but CogRNN shows the clearest log-compressed temporal progression
+            consistent with the intended representation geometry.
+          </p>
+
+          <figure class="figure-card figure-composite bottom-result-figure">
+            <div class="panel-grid three-col no-caption-grid">
+              <div class="panel-with-label">
+                <span class="panel-tag">RNN</span>
+                <img class="zoomable" src="assets/images/fig6_rnn_timecells.png" alt="RNN neuron activity heatmap.">
+              </div>
+              <div class="panel-with-label">
+                <span class="panel-tag">LSTM</span>
+                <img class="zoomable" src="assets/images/fig6_lstm_timecells.png" alt="LSTM neuron activity heatmap.">
+              </div>
+              <div class="panel-with-label">
+                <span class="panel-tag">CogRNN</span>
+                <img class="zoomable" src="assets/images/fig6_cogrnn_timecells.png" alt="CogRNN neuron activity heatmap.">
+              </div>
+            </div>
+            <figcaption>Representative neural activity maps from trained agents, sorted by peak time.</figcaption>
+          </figure>
+        </article>
+
+      </div>
+    </section>
+
+    <section id="conclusion" class="section">
+      <div class="container reveal">
+        <h2>Conclusion</h2>
+        <p class="lead">
+          This research demonstrates that <strong>incorporating computational principles from neuroscience into deep learning architectures can enhance their adaptability and robustness</strong>.
+          Scale-invariant representations may be crucial for developing AI systems that can flexibly adjust to new environments without extensive hyperparameter tuning - much like biological organisms navigate the world across vastly different spatial and temporal scales.
+        </p>
+        <article class="card full-width">
+          <h3>Future directions</h3>
+          <ul>
+            <li>Combining scale-invariant memory with power-law temporal discounting.</li>
+            <li>Extending to spatial scale invariance for navigation tasks.</li>
+            <li>Applications beyond timing tasks to general temporal reasoning.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="citation" class="section alt">
+      <div class="container reveal">
+        <h2>Citation</h2>
+        <p>If this work helps your research, please cite:</p>
+        <pre id="bibtex">@article{Kabir_Mochizuki-Freeman_Tiganj_2025,
+  title={Deep Reinforcement Learning with Time-Scale Invariant Memory},
+  volume={39},
+  url={https://ojs.aaai.org/index.php/AAAI/article/view/32124},
+  DOI={10.1609/aaai.v39i2.32124},
+  abstractNote={The ability to estimate temporal relationships is critical for both animals and artificial agents. Cognitive science and neuroscience provide remarkable insights into behavioral and neural aspects of temporal credit assignment. In particular, scale invariance of learning dynamics, observed in behavior and supported by neural data, is one of the key principles that governs animal perception: proportional rescaling of temporal relationships does not alter the overall learning efficiency. Here we integrate a computational neuroscience model of scale invariant memory into deep reinforcement learning (RL) agents. We first provide a theoretical analysis and then demonstrate through experiments that such agents can learn robustly across a wide range of temporal scales, unlike agents built with commonly used recurrent memory architectures such as LSTM. This result illustrates that incorporating computational principles from neuroscience and cognitive science into deep neural networks can enhance adaptability to complex temporal dynamics, mirroring some of the core properties of human learning.},
+  number={2},
+  journal={Proceedings of the AAAI Conference on Artificial Intelligence},
+  author={Kabir, Md Rysul and Mochizuki-Freeman, James and Tiganj, Zoran},
+  year={2025},
+  month={Apr.},
+  pages={1345-1354}
+}</pre>
+        <button id="copy-bibtex" type="button">Copy BibTeX</button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2025 Md Rysul Kabir</p>
+    </div>
+  </footer>
+
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <button type="button" id="lightbox-close" aria-label="Close image">Close</button>
+    <img id="lightbox-image" alt="Expanded figure view">
+    <p id="lightbox-caption"></p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
