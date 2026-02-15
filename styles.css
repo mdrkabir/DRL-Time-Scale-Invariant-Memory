@@ -544,12 +544,14 @@ li {
 }
 
 .exp-gif-figure img {
-  min-height: 290px;
-  max-height: 329px;
-  height: 329px;
-  object-fit: cover;
+  width: 100%;
+  min-height: 0;
+  max-height: 340px;
+  height: auto;
+  object-fit: contain;
   object-position: center;
   background: transparent;
+  image-rendering: auto;
 }
 
 .exp-gif-figure {
@@ -558,7 +560,7 @@ li {
   margin-right: 0;
   margin-top: 0;
   position: relative;
-  top: -12px;
+  top: -22px;
   align-self: start;
   justify-self: end;
 }
